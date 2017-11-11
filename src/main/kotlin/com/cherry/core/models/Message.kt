@@ -16,4 +16,4 @@ import android.arch.persistence.room.PrimaryKey
                 ForeignKey(entity = Recipient::class, parentColumns = arrayOf("id"),
                         childColumns = arrayOf("senderId"),
                         onDelete = ForeignKey.CASCADE)))
-data class Message(@PrimaryKey val id: Long, val senderId: Long, val recipientId: Long, val state: MessageState, val sentTime: Long, val receivedTime: Long)
+data class Message(@PrimaryKey val id: Long, val senderId: String, val recipientId: String, val state: MessageState, val sentTime: Long, val receivedTime: Long)

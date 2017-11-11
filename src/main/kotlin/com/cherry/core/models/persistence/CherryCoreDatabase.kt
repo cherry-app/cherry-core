@@ -2,6 +2,8 @@ package com.cherry.core.models.persistence
 
 import android.arch.persistence.room.Database
 import android.arch.persistence.room.RoomDatabase
+import com.cherry.core.data.store.MessageDataStore
+import com.cherry.core.data.store.RecipientDataStore
 import com.cherry.core.models.Message
 import com.cherry.core.models.Recipient
 
@@ -10,4 +12,7 @@ import com.cherry.core.models.Recipient
  */
 
 @Database(entities = arrayOf(Message::class, Recipient::class), version = 1)
-abstract class CherryCoreDatabase : RoomDatabase()
+abstract class CherryCoreDatabase : RoomDatabase() {
+    abstract fun getMessageDataStore(): MessageDataStore
+    abstract fun getRecipientDataStore(): RecipientDataStore
+}
