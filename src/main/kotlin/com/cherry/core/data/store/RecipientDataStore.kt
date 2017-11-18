@@ -14,7 +14,7 @@ import com.cherry.core.models.Recipient
 interface RecipientDataStore {
 
     @Query("SELECT * FROM Recipients")
-    fun getRecipients()
+    fun getRecipients(): List<Recipient>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertRecipient(recipient: Recipient)
