@@ -3,6 +3,8 @@ package com.cherry.core.network
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.Header
+import retrofit2.http.Headers
 import retrofit2.http.POST
 
 /**
@@ -11,12 +13,15 @@ import retrofit2.http.POST
 
 interface CherryCoreNetwork {
 
+    @Headers(
+            "Content-Type: application/json"
+    )
     @POST(ApiRoutes.SIGN_UP)
-    fun signUp(@Body body: JSONObject): Call<String>
+    fun signUp(@Header("Cherry-Partner-ID") partnerId: String, @Body body: JSONObject): Call<String>
 
     @POST(ApiRoutes.VERIFY)
-    fun verifyOtp(@Body body: JSONObject): Call<String>
+    fun verifyOtp(@Header("Cherry-Partner-ID") partnerId: String, @Body body: JSONObject): Call<String>
 
     @POST(ApiRoutes.MESSAGE)
-    fun postMessage(@Body body: JSONObject): Call<String>
+    fun postMessage(@Header("Cherry-Partner-ID") partnerId: String, @Body body: JSONObject): Call<String>
 }
