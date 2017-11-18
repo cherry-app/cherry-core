@@ -1,6 +1,7 @@
 package com.cherry.core.controllers
 
 import com.cherry.core.data.repositories.CoreDataRepository
+import org.json.JSONObject
 import retrofit2.Response
 
 /**
@@ -10,7 +11,7 @@ import retrofit2.Response
 class MessageController {
 
     fun postMessage(text: String, recipientId: String, token: String): Response<String> {
-        val body = HashMap<String, String>()
+        val body = JSONObject()
         return CoreDataRepository.getNetworkDataRepository().postMessage(body).execute()
     }
 }

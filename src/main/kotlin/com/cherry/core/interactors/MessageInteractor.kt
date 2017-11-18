@@ -9,10 +9,10 @@ import io.reactivex.schedulers.Schedulers
  * Created by girish on 11/12/17.
  */
 
-class MessageInteractor {
+class MessageInteractor: Interactor() {
 
     fun postMessage(text: String, recipientId: String, token: String, onMessagePosted: (success: Boolean) -> Unit) {
-        Observable.fromCallable { MessageController().postMessage(text, recipientId, token) }
+        disposableList.add(Observable.fromCallable { MessageController().postMessage(text, recipientId, token) }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { response ->
@@ -21,7 +21,7 @@ class MessageInteractor {
                     } else {
                         onMessagePosted(false)
                     }
-                }
+                })
     }
 
 }
