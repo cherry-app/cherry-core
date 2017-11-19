@@ -2,7 +2,7 @@ package com.cherry.core.controllers
 
 import com.cherry.core.Cherry
 import com.cherry.core.data.repositories.CoreDataRepository
-import org.json.JSONObject
+import com.google.gson.JsonObject
 import retrofit2.Response
 
 /**
@@ -12,7 +12,7 @@ import retrofit2.Response
 class MessageController {
 
     fun postMessage(text: String, recipientId: String, token: String): Response<String> {
-        val body = JSONObject()
+        val body = JsonObject()
         return CoreDataRepository.getNetworkDataRepository().postMessage(Cherry.partnerId, body).execute()
     }
 }

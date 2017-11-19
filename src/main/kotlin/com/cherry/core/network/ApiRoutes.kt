@@ -6,7 +6,7 @@ package com.cherry.core.network
 
 object ApiRoutes {
 
-    const val BASE_URL = "https://api.getcherry.in"
+    const val BASE_URL = "https://getcherry.in"
 
     const val SIGN_UP = "/signup"
     const val VERIFY = "/verify"

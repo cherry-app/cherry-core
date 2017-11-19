@@ -23,7 +23,7 @@ object Cherry {
         var sessionToken: String? = null
 
         val isLoggedIn: Boolean
-        get() = sessionToken == null
+        get() = sessionToken != null
 
         fun requestOtp(phoneNumber: String, name: String, onOtpRequested: (success: Boolean) -> Unit) {
             sessionInteractor.signUp(phoneNumber, name, { loginToken ->
@@ -32,8 +32,13 @@ object Cherry {
             })
         }
 
-        fun verifyOtp(otp: String, loginToken: String, onLoginCompleted: (success: Boolean) -> Unit) {
-            sessionInteractor.verifyOtp(otp, loginToken, { sessionToken ->
+        fun verifyOtp(otp: String, onLoginCompleted: (success: Boolean) -> Unit) {
+            val token = loginToken
+            if (token == null) {
+                onLoginCompleted(false)
+                return
+            }
+            sessionInteractor.verifyOtp(otp, token, { sessionToken ->
                 this.sessionToken = sessionToken
                 sessionToken ?: contextRef?.get()
                         ?.getSharedPreferences(CHERRY_PREFS, Context.MODE_PRIVATE)

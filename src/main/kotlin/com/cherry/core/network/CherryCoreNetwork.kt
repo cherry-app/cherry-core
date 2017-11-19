@@ -1,6 +1,6 @@
 package com.cherry.core.network
 
-import org.json.JSONObject
+import com.google.gson.JsonObject
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.Header
@@ -17,11 +17,11 @@ interface CherryCoreNetwork {
             "Content-Type: application/json"
     )
     @POST(ApiRoutes.SIGN_UP)
-    fun signUp(@Header("Cherry-Partner-ID") partnerId: String, @Body body: JSONObject): Call<String>
+    fun signUp(@Header("Cherry-Partner-ID") partnerId: String, @Body body: JsonObject): Call<String>
 
     @POST(ApiRoutes.VERIFY)
-    fun verifyOtp(@Header("Cherry-Partner-ID") partnerId: String, @Body body: JSONObject): Call<String>
+    fun verifyOtp(@Header("Cherry-Partner-ID") partnerId: String, @Body body: JsonObject): Call<String>
 
     @POST(ApiRoutes.MESSAGE)
-    fun postMessage(@Header("Cherry-Partner-ID") partnerId: String, @Body body: JSONObject): Call<String>
+    fun postMessage(@Header("Cherry-Partner-ID") partnerId: String, @Body body: JsonObject): Call<String>
 }

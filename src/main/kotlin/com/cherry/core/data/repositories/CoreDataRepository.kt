@@ -6,6 +6,8 @@ import com.cherry.core.models.persistence.CherryCoreDatabase
 import com.cherry.core.network.ApiRoutes
 import com.cherry.core.network.CherryCoreNetwork
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.scalars.ScalarsConverterFactory
 
 /**
  * Created by girish on 11/12/17.
@@ -22,6 +24,9 @@ object CoreDataRepository {
     }
 
     fun getNetworkDataRepository(): CherryCoreNetwork {
-        return NETWORK_INSTANCE ?: Retrofit.Builder().baseUrl(ApiRoutes.BASE_URL).build().create(CherryCoreNetwork::class.java).also { NETWORK_INSTANCE = it }
+        return NETWORK_INSTANCE ?: Retrofit.Builder().baseUrl(ApiRoutes.BASE_URL)
+                .addConverterFactory(ScalarsConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
+                .build().create(CherryCoreNetwork::class.java).also { NETWORK_INSTANCE = it }
     }
 }
