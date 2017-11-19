@@ -12,37 +12,37 @@ import io.reactivex.schedulers.Schedulers
 
 class SessionInteractor: Interactor() {
 
-    fun signUp(phoneNumber: String, name: String, onSignUpCompleted: (loginToken: String?) -> Unit) {
+    fun signUp(phoneNumber: String, name: String, onSignUpCompleted: (loginToken: String?, error: Throwable?) -> Unit) {
         disposableList.add(Observable.fromCallable { SessionController().signUp(phoneNumber, name) }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { response ->
+                .subscribe({ response ->
                     if (response.isSuccessful && response.code() == 200) {
                         val result = getJSONObjectOrNull(response.body())
                         if (result != null) {
                             val token = result.optString("token")
-                            onSignUpCompleted(token)
+                            onSignUpCompleted(token, null)
                             return@subscribe
                         }
                     }
-                    onSignUpCompleted(null)
-                })
+                    onSignUpCompleted(null, null)
+                }, { t -> onSignUpCompleted(null, t) }))
     }
 
-    fun verifyOtp(otp: String, loginToken: String, onLoginCompleted: (authToken: String?) -> Unit ) {
-        Observable.fromCallable { SessionController().verifyOtp(otp, loginToken) }
+    fun verifyOtp(otp: String, loginToken: String, onLoginCompleted: (authToken: String?, error: Throwable?) -> Unit ) {
+        disposableList.add(Observable.fromCallable { SessionController().verifyOtp(otp, loginToken) }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { response ->
+                .subscribe( { response ->
                     if (response.isSuccessful && response.code() == 200) {
                         val result = getJSONObjectOrNull(response.body())
                         if (result != null) {
                             val token = result.optString("token")
-                            onLoginCompleted(token)
+                            onLoginCompleted(token, null)
                             return@subscribe
                         }
                     }
-                    onLoginCompleted(null)
-                }
+                    onLoginCompleted(null, null)
+                }, { t -> onLoginCompleted(null, t) }))
     }
 }
