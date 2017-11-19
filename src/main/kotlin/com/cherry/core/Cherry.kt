@@ -1,6 +1,8 @@
 package com.cherry.core
 
+import android.content.Context
 import com.cherry.core.interactors.SessionInteractor
+import java.lang.ref.WeakReference
 
 /**
  * Created by girish on 11/12/17.
@@ -8,11 +10,17 @@ import com.cherry.core.interactors.SessionInteractor
 
 object Cherry {
 
+    private const val CHERRY_PREFS = "com.cherry.core.prefs"
+
+    private const val KEY_SESSION_TOKEN = "sessionToken"
+
+    private var contextRef: WeakReference<Context>? = null
+
     object Session {
 
         private val sessionInteractor =  SessionInteractor()
         private var loginToken: String? = null
-        private var sessionToken: String? = null
+        var sessionToken: String? = null
 
         val isLoggedIn: Boolean
         get() = sessionToken == null
@@ -27,6 +35,9 @@ object Cherry {
         fun verifyOtp(otp: String, loginToken: String, onLoginCompleted: (success: Boolean) -> Unit) {
             sessionInteractor.verifyOtp(otp, loginToken, { sessionToken ->
                 this.sessionToken = sessionToken
+                sessionToken ?: contextRef?.get()
+                        ?.getSharedPreferences(CHERRY_PREFS, Context.MODE_PRIVATE)
+                        ?.edit()?.putString(KEY_SESSION_TOKEN, sessionToken)?.apply()
                 onLoginCompleted(sessionToken != null)
             })
         }
@@ -35,8 +46,11 @@ object Cherry {
 
     lateinit var partnerId: String
 
-    fun init(partnerId: String) {
+    fun init(context: Context, partnerId: String) {
         this.partnerId = partnerId
+        contextRef = WeakReference(context.applicationContext)
+        val sharedPreferences = context.getSharedPreferences(CHERRY_PREFS, Context.MODE_PRIVATE)
+        Session.sessionToken = sharedPreferences.getString(KEY_SESSION_TOKEN, null)
     }
 
 }
