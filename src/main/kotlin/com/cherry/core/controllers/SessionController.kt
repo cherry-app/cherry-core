@@ -24,4 +24,11 @@ class SessionController {
         body.addProperty("login_token", loginToken)
         return CoreDataRepository.getNetworkDataRepository().verifyOtp(Cherry.partnerId, body).execute()
     }
+
+    fun resendOtp(phoneNumber: String, loginToken: String): Response<String> {
+        val body = JsonObject()
+        body.addProperty("phone_number", phoneNumber)
+        body.addProperty("login_token", loginToken)
+        return CoreDataRepository.getNetworkDataRepository().resendOtp(Cherry.partnerId, body).execute()
+    }
 }

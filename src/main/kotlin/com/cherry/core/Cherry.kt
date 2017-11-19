@@ -55,6 +55,16 @@ object Cherry {
             })
         }
 
+        fun resendOtp(phoneNumber: String, onOtpResent: (attemptsLeft: Int, exception: Throwable?) -> Unit) {
+            val token = loginToken
+            if (token == null) {
+                onOtpResent(-1, null)
+                return
+            }
+            sessionInteractor.resendOtp(phoneNumber, token, { attemptsLeft, throwable ->
+                onOtpResent(attemptsLeft, throwable)
+            })
+        }
     }
 
     lateinit var partnerId: String
@@ -66,5 +76,4 @@ object Cherry {
         Session.sessionToken = sharedPreferences.getString(KEY_SESSION_TOKEN, null)
         Session.loginToken = sharedPreferences.getString(KEY_LOGIN_TOKEN, null)
     }
-
 }

@@ -22,6 +22,9 @@ interface CherryCoreNetwork {
     @POST(ApiRoutes.VERIFY)
     fun verifyOtp(@Header("Cherry-Partner-ID") partnerId: String, @Body body: JsonObject): Call<String>
 
+    @POST(ApiRoutes.RESEND_OTP)
+    fun resendOtp(@Header("Cherry-Partner-ID") partnerId: String, @Body body: JsonObject): Call<String>
+
     @POST(ApiRoutes.MESSAGE)
     fun postMessage(@Header("Cherry-Partner-ID") partnerId: String, @Body body: JsonObject): Call<String>
 }

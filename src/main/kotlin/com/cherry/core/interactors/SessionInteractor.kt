@@ -45,4 +45,21 @@ class SessionInteractor: Interactor() {
                     onLoginCompleted(null, null)
                 }, { t -> onLoginCompleted(null, t) }))
     }
+
+    fun resendOtp(phoneNumber: String, loginToken: String, onOtpResent: (attemptsLeft: Int, error: Throwable?) -> Unit ) {
+        disposableList.add(Observable.fromCallable { SessionController().resendOtp(phoneNumber, loginToken) }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe( { response ->
+                    if (response.isSuccessful && response.code() == 200) {
+                        val result = getJSONObjectOrNull(response.body())
+                        if (result != null) {
+                            val attemptsLeft = result.optInt("attempts_left")
+                            onOtpResent(attemptsLeft, null)
+                            return@subscribe
+                        }
+                    }
+                    onOtpResent(-1, null)
+                }, { t -> onOtpResent(-1, t) }))
+    }
 }
