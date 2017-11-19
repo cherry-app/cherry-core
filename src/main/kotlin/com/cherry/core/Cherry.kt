@@ -40,9 +40,11 @@ object Cherry {
             }
             sessionInteractor.verifyOtp(otp, token, { sessionToken ->
                 this.sessionToken = sessionToken
-                sessionToken ?: contextRef?.get()
-                        ?.getSharedPreferences(CHERRY_PREFS, Context.MODE_PRIVATE)
-                        ?.edit()?.putString(KEY_SESSION_TOKEN, sessionToken)?.apply()
+                if (sessionToken != null) {
+                    contextRef?.get()
+                            ?.getSharedPreferences(CHERRY_PREFS, Context.MODE_PRIVATE)
+                            ?.edit()?.putString(KEY_SESSION_TOKEN, sessionToken)?.apply()
+                }
                 onLoginCompleted(sessionToken != null)
             })
         }
