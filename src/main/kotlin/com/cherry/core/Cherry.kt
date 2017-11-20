@@ -1,7 +1,13 @@
 package com.cherry.core
 
+import android.arch.lifecycle.LiveData
 import android.content.Context
+import com.cherry.core.data.repositories.CoreDataRepository
+import com.cherry.core.interactors.MessageInteractor
+import com.cherry.core.interactors.ParticipantsInteractor
 import com.cherry.core.interactors.SessionInteractor
+import com.cherry.core.models.Conversation
+import com.cherry.core.models.Participant
 import java.lang.ref.WeakReference
 
 /**
@@ -64,6 +70,42 @@ object Cherry {
             sessionInteractor.resendOtp(phoneNumber, token, { attemptsLeft, throwable ->
                 onOtpResent(attemptsLeft, throwable)
             })
+        }
+    }
+
+    object Contacts {
+
+        @Volatile var isSyncing = false
+
+        private val mCallbackRefs = ArrayList<WeakReference<() -> Unit>>()
+        private val participantsInteractor = ParticipantsInteractor()
+
+        fun sync(context: Context, onSyncComplete: () -> Unit = {}) {
+            mCallbackRefs.add(WeakReference(onSyncComplete))
+            if (isSyncing) {
+                return
+            }
+            isSyncing = true
+            participantsInteractor.sync(context, {
+                mCallbackRefs.forEach { it.get()?.invoke() }
+                mCallbackRefs.clear()
+                participantsInteractor.clear()
+                isSyncing = false
+            })
+        }
+
+        fun getParticipantsLiveData(context: Context): LiveData<List<Participant>> =
+            CoreDataRepository.getLocalDataRepository(context).getParticipantDataStore().getParticipantsLiveData()
+    }
+
+    object Messaging {
+
+        fun getConversationLiveData(context: Context): LiveData<List<Conversation>> =
+            CoreDataRepository.getLocalDataRepository(context).getConversationDataStore().getConversations()
+
+        fun postTextMessage(message: String, recipientId: String, onMessagePosted: (Boolean) -> Unit) {
+            val token = Cherry.Session.sessionToken ?: return
+            MessageInteractor().postMessage(message, recipientId, token, onMessagePosted)
         }
     }
 

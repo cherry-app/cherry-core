@@ -8,5 +8,5 @@ import com.cherry.core.models.persistence.RecipientType
  * Created by girish on 11/11/17.
  */
 
-@Entity(tableName = "Recipients")
-data class Recipient(@PrimaryKey val id: String, val contactId: Long, val displayName: String, val blocked: Boolean, val status: String, val type: RecipientType)
+@Entity(tableName = "Participants")
+data class Participant(@PrimaryKey val id: String, val contactId: Long, val displayName: String, val blocked: Boolean, val status: String, val type: RecipientType)

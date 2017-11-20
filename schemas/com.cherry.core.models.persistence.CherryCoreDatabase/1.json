@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "4497a8c4025bb272cd97c4b3d4d2d920",
+    "identityHash": "e8af339fcaac1c57bc6ee6351fd482a2",
     "entities": [
       {
         "tableName": "Messages",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `senderId` TEXT NOT NULL, `recipientId` TEXT NOT NULL, `state` INTEGER NOT NULL, `sentTime` INTEGER NOT NULL, `receivedTime` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`recipientId`) REFERENCES `Recipients`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`senderId`) REFERENCES `Recipients`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `senderId` TEXT NOT NULL, `recipientId` TEXT NOT NULL, `state` INTEGER NOT NULL, `sentTime` INTEGER NOT NULL, `receivedTime` INTEGER NOT NULL, `unread` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`recipientId`) REFERENCES `Participants`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`senderId`) REFERENCES `Participants`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -43,6 +43,12 @@
             "columnName": "receivedTime",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "unread",
+            "columnName": "unread",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -71,7 +77,7 @@
         ],
         "foreignKeys": [
           {
-            "table": "Recipients",
+            "table": "Participants",
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
@@ -82,7 +88,7 @@
             ]
           },
           {
-            "table": "Recipients",
+            "table": "Participants",
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
@@ -95,7 +101,7 @@
         ]
       },
       {
-        "tableName": "Recipients",
+        "tableName": "Participants",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `contactId` INTEGER NOT NULL, `displayName` TEXT NOT NULL, `blocked` INTEGER NOT NULL, `status` TEXT NOT NULL, `type` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
@@ -147,7 +153,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"4497a8c4025bb272cd97c4b3d4d2d920\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"e8af339fcaac1c57bc6ee6351fd482a2\")"
     ]
   }
 }

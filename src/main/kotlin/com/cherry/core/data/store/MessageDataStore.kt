@@ -13,8 +13,8 @@ import com.cherry.core.models.Message
 @Dao
 interface MessageDataStore {
 
-    @Query("SELECT * FROM Messages WHERE (recipientId = :recipientId OR senderId = :recipientId) AND sentTime <= :since ORDER BY sentTime DESC LIMIT :limit")
-    fun getMessagesForConversation(recipientId: String, since: Long, limit: Int): List<Message>
+    @Query("SELECT * FROM Messages WHERE (recipientId = :participantId OR senderId = :participantId) AND sentTime <= :since ORDER BY sentTime DESC LIMIT :limit")
+    fun getMessagesForConversation(participantId: String, since: Long, limit: Int): List<Message>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertMessage(message: Message)

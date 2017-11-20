@@ -12,10 +12,10 @@ import android.arch.persistence.room.PrimaryKey
 @Entity(tableName = "Messages",
         indices = arrayOf(Index(value = "recipientId", name = "recipientId"), Index(value = "senderId", name = "senderId")),
         foreignKeys = arrayOf(
-                ForeignKey(entity = Recipient::class, parentColumns = arrayOf("id"),
+                ForeignKey(entity = Participant::class, parentColumns = arrayOf("id"),
                 childColumns = arrayOf("recipientId"),
                 onDelete = ForeignKey.CASCADE),
-                ForeignKey(entity = Recipient::class, parentColumns = arrayOf("id"),
+                ForeignKey(entity = Participant::class, parentColumns = arrayOf("id"),
                         childColumns = arrayOf("senderId"),
                         onDelete = ForeignKey.CASCADE)))
-data class Message(@PrimaryKey val id: Long, val senderId: String, val recipientId: String, var state: MessageState, val sentTime: Long, val receivedTime: Long)
+data class Message(@PrimaryKey val id: Long, val senderId: String, val recipientId: String, var state: MessageState, val sentTime: Long, val receivedTime: Long, val unread: Boolean)
