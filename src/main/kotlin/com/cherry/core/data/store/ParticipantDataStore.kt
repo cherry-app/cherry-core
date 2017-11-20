@@ -17,6 +17,9 @@ interface ParticipantDataStore {
     @Query("SELECT * FROM Participants")
     fun getParticipants(): List<Participant>
 
+    @Query("SELECT id FROM Participants")
+    fun getParticipantUids(): List<String>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertParticipant(participant: Participant)
 

@@ -20,6 +20,7 @@ object Cherry {
 
     private const val KEY_SESSION_TOKEN = "sessionToken"
     private const val KEY_LOGIN_TOKEN = "loginToken"
+    private const val KEY_UID = "phoneNumber"
 
     private var contextRef: WeakReference<Context>? = null
 
@@ -28,6 +29,7 @@ object Cherry {
         private val sessionInteractor =  SessionInteractor()
         var loginToken: String? = null
         var sessionToken: String? = null
+        var uid: String? = null
 
         val isLoggedIn: Boolean
         get() = sessionToken != null
@@ -39,6 +41,9 @@ object Cherry {
                     contextRef?.get()
                             ?.getSharedPreferences(CHERRY_PREFS, Context.MODE_PRIVATE)
                             ?.edit()?.putString(KEY_LOGIN_TOKEN, loginToken)?.apply()
+                    contextRef?.get()
+                            ?.getSharedPreferences(CHERRY_PREFS, Context.MODE_PRIVATE)
+                            ?.edit()?.putString(KEY_UID, phoneNumber)?.apply()
                 }
                 onOtpRequested(loginToken != null, throwable)
             })
@@ -117,5 +122,6 @@ object Cherry {
         val sharedPreferences = context.getSharedPreferences(CHERRY_PREFS, Context.MODE_PRIVATE)
         Session.sessionToken = sharedPreferences.getString(KEY_SESSION_TOKEN, null)
         Session.loginToken = sharedPreferences.getString(KEY_LOGIN_TOKEN, null)
+        Session.uid = sharedPreferences.getString(KEY_UID, null)
     }
 }
