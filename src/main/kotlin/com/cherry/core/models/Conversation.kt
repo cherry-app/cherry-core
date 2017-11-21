@@ -1,22 +1,19 @@
 package com.cherry.core.models
 
-import android.arch.persistence.room.Embedded
-import android.arch.persistence.room.Relation
+import android.arch.persistence.room.Entity
+import android.arch.persistence.room.ForeignKey
+import android.arch.persistence.room.Index
+import android.arch.persistence.room.PrimaryKey
+import java.io.Serializable
 
 /**
  * Created by girish on 11/20/17.
  */
 
-class Conversation {
-
-    @Embedded
-    var participant: Participant? = null
-
-    @Relation(parentColumn = "id", entityColumn = "senderId")
-    var messagesFrom: List<Message>? = null
-
-    @Relation(parentColumn = "id", entityColumn = "recipientId")
-    var messagesTo: List<Message>? = null
-
-    fun getUnreadCount() = messagesFrom?.filter { it.unread }?.count() ?: 0
-}
+@Entity(tableName = "Conversations",
+        indices = arrayOf(Index(value = "participantId", name = "participant")),
+        foreignKeys = arrayOf(
+                ForeignKey(entity = Participant::class, parentColumns = arrayOf("id"),
+                        childColumns = arrayOf("participantId"),
+                        onDelete = ForeignKey.CASCADE)))
+data class Conversation(@PrimaryKey val id: Long, val participantId: String, val lastReceivedTimestamp: Long, val snippet: String): Serializable

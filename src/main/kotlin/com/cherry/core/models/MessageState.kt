@@ -1,10 +1,12 @@
 package com.cherry.core.models
 
+import java.io.Serializable
+
 /**
  * Created by girish on 11/11/17.
  */
 
-enum class MessageState {
+enum class MessageState: Serializable {
     SENT, DELIVERED, READ, PENDING, RECEIVED, UNKNOWN;
 
     fun asInt(): Int =

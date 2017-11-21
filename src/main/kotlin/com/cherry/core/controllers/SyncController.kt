@@ -6,7 +6,7 @@ import android.util.Log
 import com.cherry.core.Cherry
 import com.cherry.core.data.repositories.CoreDataRepository
 import com.cherry.core.models.Participant
-import com.cherry.core.models.persistence.RecipientType
+import com.cherry.core.models.RecipientType
 import com.cherry.core.utilities.toJsonArray
 import com.cherry.core.utilities.useAs
 import com.google.gson.JsonArray
@@ -61,10 +61,10 @@ class SyncController {
                     if (Integer.parseInt(getString(getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
                         cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", arrayOf<String>(id), null).useAs {
                             while (moveToNext()) {
-                                val id = getLong(getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID))
+                                val contactId = getLong(getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID))
                                 val contactNumber = getString(getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
                                 val name = getString(getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
-                                allPhoneNumbers.add(ContactInfo(id, name, contactNumber))
+                                allPhoneNumbers.add(ContactInfo(contactId, name, contactNumber))
                                 break
                             }
                         }

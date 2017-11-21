@@ -1,10 +1,12 @@
-package com.cherry.core.models.persistence
+package com.cherry.core.models
+
+import java.io.Serializable
 
 /**
  * Created by girish on 11/12/17.
  */
 
-enum class RecipientType {
+enum class RecipientType: Serializable {
     INDIVIDUAL, GROUP, UNKNOWN;
 
     fun asInt(): Int  =

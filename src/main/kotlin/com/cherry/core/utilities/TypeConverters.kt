@@ -2,7 +2,7 @@ package com.cherry.core.utilities
 
 import android.arch.persistence.room.TypeConverter
 import com.cherry.core.models.MessageState
-import com.cherry.core.models.persistence.RecipientType
+import com.cherry.core.models.RecipientType
 
 /**
  * Created by girish on 11/19/17.

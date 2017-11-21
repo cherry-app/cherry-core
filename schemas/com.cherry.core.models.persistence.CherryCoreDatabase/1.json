@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "e8af339fcaac1c57bc6ee6351fd482a2",
+    "identityHash": "4f5a881c4d352ace4ba6c13e5315c764",
     "entities": [
       {
         "tableName": "Messages",
@@ -149,11 +149,70 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "Conversations",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `participantId` TEXT NOT NULL, `lastReceivedTimestamp` INTEGER NOT NULL, `snippet` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`participantId`) REFERENCES `Participants`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "participantId",
+            "columnName": "participantId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastReceivedTimestamp",
+            "columnName": "lastReceivedTimestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "snippet",
+            "columnName": "snippet",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "participant",
+            "unique": false,
+            "columnNames": [
+              "participantId"
+            ],
+            "createSql": "CREATE  INDEX `participant` ON `${TABLE_NAME}` (`participantId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Participants",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "participantId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"e8af339fcaac1c57bc6ee6351fd482a2\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"4f5a881c4d352ace4ba6c13e5315c764\")"
     ]
   }
 }
