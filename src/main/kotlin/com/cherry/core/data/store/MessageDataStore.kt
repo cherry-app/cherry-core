@@ -14,8 +14,8 @@ import com.cherry.core.models.Message
 @Dao
 interface MessageDataStore {
 
-    @Query("SELECT * FROM Messages WHERE (recipientId = :participantId OR senderId = :participantId) ORDER BY sentTime DESC")
-    fun getMessagesForConversationLiveData(participantId: String): LivePagedListProvider<Int, Message>
+    @Query("SELECT * FROM Messages WHERE (recipientId = :participantId OR (recipientID = :myId AND senderId = :participantId)) ORDER BY sentTime DESC")
+    fun getMessagesForConversationLiveData(myId: String, participantId: String): LivePagedListProvider<Int, Message>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertMessage(message: Message)

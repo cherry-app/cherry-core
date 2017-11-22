@@ -122,7 +122,7 @@ object Cherry {
     object Messaging {
 
         fun getMessageLiveDataForConversation(context: Context, participantId: String): LivePagedListProvider<Int, Message> =
-                CoreDataRepository.getLocalDataRepository(context).getMessageDataStore().getMessagesForConversationLiveData(participantId)
+                CoreDataRepository.getLocalDataRepository(context).getMessageDataStore().getMessagesForConversationLiveData(Session.uid ?: throw IllegalStateException("UID not present"), participantId)
 
         fun getConversationLiveData(context: Context): LiveData<List<ConversationWithParticipant>> =
                 CoreDataRepository.getLocalDataRepository(context).getConversationDataStore().getConversations()
