@@ -33,7 +33,7 @@ class SyncController {
         val uid = Cherry.Session.uid ?: throw IllegalStateException("UID not present")
         val existing = CoreDataRepository.getLocalDataRepository(context).getParticipantDataStore().getParticipantUids()
         val allContactInfos = getAllPhoneNumbers(context)
-        val phoneNumbers = allContactInfos.filter { !existing.contains(it.number) }.map { it.number } .toJsonArray()
+        val phoneNumbers = allContactInfos.filter { !existing.contains(it.value.number ) }.map { it.value.number } .toJsonArray()
         val body = JsonObject().apply { add("numbers", phoneNumbers) }
         val result = CoreDataRepository.getNetworkDataRepository().syncContacts(Cherry.partnerId, uid, token, body).execute().body()
         Log.d("Cherry", result)
@@ -41,7 +41,7 @@ class SyncController {
         unsyncedNumbers.forEach { element ->
             val number = element.asString
             if (number != Cherry.Session.uid) {
-                val contactInfo = allContactInfos.getNameForNumber(number)
+                val contactInfo = allContactInfos[number]
                 val participant = Participant(number, contactInfo?.contactId ?: -1, contactInfo?.name ?: number, false, "", RecipientType.INDIVIDUAL)
                 Log.d("Cherry", "Added participant: " + participant)
                 CoreDataRepository.getLocalDataRepository(context).getParticipantDataStore().insertParticipant(participant)
@@ -56,8 +56,8 @@ class SyncController {
     private fun List<ContactInfo>.getNameForNumber(phoneNumber: String): ContactInfo? =
             this.firstOrNull { it.number == phoneNumber }
 
-    private fun getAllPhoneNumbers(context: Context): List<ContactInfo> {
-        val allPhoneNumbers = ArrayList<ContactInfo>()
+    private fun getAllPhoneNumbers(context: Context): HashMap<String, ContactInfo> {
+        val allPhoneNumbers = HashMap<String, ContactInfo>()
         val cr = context.contentResolver
         cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null).useAs {
             if (moveToFirst()) {
@@ -70,8 +70,7 @@ class SyncController {
                                 val contactId = getLong(getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID))
                                 val contactNumber = getString(getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
                                 val name = getString(getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
-                                allPhoneNumbers.add(ContactInfo(contactId, name, contactNumber))
-                                break
+                                allPhoneNumbers.put(contactNumber, ContactInfo(contactId, name, sanitize(contactNumber)))
                             }
                         }
                     }
@@ -80,5 +79,20 @@ class SyncController {
             }
         }
         return allPhoneNumbers
+    }
+
+    private fun getCountryCode(): String = "+91"
+
+    private fun sanitize(number: String): String {
+        val startsWithPlus = number.startsWith("+")
+        var filterNumber = number.replace(Regex("\\D+"),"")
+        if (filterNumber.length == 10) {
+            filterNumber = getCountryCode() + filterNumber
+        } else {
+            if (startsWithPlus) {
+                filterNumber = "+" + filterNumber
+            }
+        }
+        return filterNumber
     }
 }
