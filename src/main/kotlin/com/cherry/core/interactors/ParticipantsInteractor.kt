@@ -13,10 +13,17 @@ import io.reactivex.schedulers.Schedulers
 class ParticipantsInteractor: Interactor() {
 
     fun sync(context: Context, onSyncComplete: () -> Unit) {
-        Observable.fromCallable { SyncController().syncContacts(context) }
+        disposableList.add(Observable.fromCallable { SyncController().syncContacts(context) }
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({onSyncComplete()}, {onSyncComplete()})
+                .subscribe({onSyncComplete()}, {onSyncComplete()}))
+    }
+
+    fun addSelf(context: Context, name: String, uid: String) {
+        disposableList.add(Observable.fromCallable { SyncController().insertSelfRecord(context, name, uid) }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe())
     }
 
 }

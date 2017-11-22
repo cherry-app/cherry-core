@@ -7,18 +7,20 @@ import java.io.Serializable
  */
 
 enum class RecipientType: Serializable {
-    INDIVIDUAL, GROUP, UNKNOWN;
+    INDIVIDUAL, GROUP, SELF, UNKNOWN;
 
     fun asInt(): Int  =
         when(this) {
-        INDIVIDUAL -> 1
-        GROUP -> 2
-        UNKNOWN -> 99
-    }
+            SELF -> 0
+            INDIVIDUAL -> 1
+            GROUP -> 2
+            UNKNOWN -> 99
+        }
 
     companion object {
         fun fromInt(type: Int): RecipientType =
             when(type) {
+                0 -> SELF
                 1 -> INDIVIDUAL
                 2 -> GROUP
                 else -> UNKNOWN

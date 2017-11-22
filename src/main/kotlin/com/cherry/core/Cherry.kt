@@ -1,12 +1,14 @@
 package com.cherry.core
 
 import android.arch.lifecycle.LiveData
+import android.arch.paging.LivePagedListProvider
 import android.content.Context
 import com.cherry.core.data.repositories.CoreDataRepository
 import com.cherry.core.interactors.MessageInteractor
 import com.cherry.core.interactors.ParticipantsInteractor
 import com.cherry.core.interactors.SessionInteractor
-import com.cherry.core.models.Conversation
+import com.cherry.core.models.ConversationWithParticipant
+import com.cherry.core.models.Message
 import com.cherry.core.models.Participant
 import java.lang.ref.WeakReference
 
@@ -20,19 +22,21 @@ object Cherry {
 
     private const val KEY_SESSION_TOKEN = "sessionToken"
     private const val KEY_LOGIN_TOKEN = "loginToken"
+    private const val KEY_NAME = "name"
     private const val KEY_UID = "phoneNumber"
 
     private var contextRef: WeakReference<Context>? = null
 
     object Session {
 
-        private val sessionInteractor =  SessionInteractor()
+        private val sessionInteractor = SessionInteractor()
         var loginToken: String? = null
         var sessionToken: String? = null
         var uid: String? = null
+        var name: String? = null
 
         val isLoggedIn: Boolean
-        get() = sessionToken != null
+            get() = sessionToken != null
 
         fun requestOtp(phoneNumber: String, name: String, onOtpRequested: (success: Boolean, exception: Throwable?) -> Unit) {
             sessionInteractor.signUp(phoneNumber, name, { loginToken, throwable ->
@@ -40,10 +44,10 @@ object Cherry {
                 if (loginToken != null) {
                     contextRef?.get()
                             ?.getSharedPreferences(CHERRY_PREFS, Context.MODE_PRIVATE)
-                            ?.edit()?.putString(KEY_LOGIN_TOKEN, loginToken)?.apply()
-                    contextRef?.get()
-                            ?.getSharedPreferences(CHERRY_PREFS, Context.MODE_PRIVATE)
-                            ?.edit()?.putString(KEY_UID, phoneNumber)?.apply()
+                            ?.edit()?.putString(KEY_LOGIN_TOKEN, loginToken)
+                            ?.putString(KEY_UID, phoneNumber)
+                            ?.putString(KEY_NAME, name)
+                            ?.apply()
                 }
                 onOtpRequested(loginToken != null, throwable)
             })
@@ -58,9 +62,20 @@ object Cherry {
             sessionInteractor.verifyOtp(otp, token, { sessionToken, throwable ->
                 this.sessionToken = sessionToken
                 if (sessionToken != null) {
-                    contextRef?.get()
-                            ?.getSharedPreferences(CHERRY_PREFS, Context.MODE_PRIVATE)
-                            ?.edit()?.putString(KEY_SESSION_TOKEN, sessionToken)?.apply()
+                    val context = contextRef?.get()
+                    if (context != null) {
+                        context.getSharedPreferences(CHERRY_PREFS, Context.MODE_PRIVATE)
+                                ?.edit()?.putString(KEY_SESSION_TOKEN, sessionToken)?.apply()
+
+                        setVariables(context)
+
+                        val name = Session.name
+                        val uid = Session.uid
+
+                        if (name != null && uid != null) {
+                            ParticipantsInteractor().addSelf(context, name, uid)
+                        }
+                    }
                 }
                 onLoginCompleted(sessionToken != null, throwable)
             })
@@ -80,7 +95,8 @@ object Cherry {
 
     object Contacts {
 
-        @Volatile var isSyncing = false
+        @Volatile
+        var isSyncing = false
 
         private val mCallbackRefs = ArrayList<WeakReference<() -> Unit>>()
         private val participantsInteractor = ParticipantsInteractor()
@@ -100,17 +116,19 @@ object Cherry {
         }
 
         fun getParticipantsLiveData(context: Context): LiveData<List<Participant>> =
-            CoreDataRepository.getLocalDataRepository(context).getParticipantDataStore().getParticipantsLiveData()
+                CoreDataRepository.getLocalDataRepository(context).getParticipantDataStore().getParticipantsLiveData()
     }
 
     object Messaging {
 
-        fun getConversationLiveData(context: Context): LiveData<List<Conversation>> =
-            CoreDataRepository.getLocalDataRepository(context).getConversationDataStore().getConversations()
+        fun getMessageLiveDataForConversation(context: Context, participantId: String): LivePagedListProvider<Int, Message> =
+                CoreDataRepository.getLocalDataRepository(context).getMessageDataStore().getMessagesForConversationLiveData(participantId)
 
-        fun postTextMessage(message: String, recipientId: String, onMessagePosted: (Boolean) -> Unit) {
-            val token = Cherry.Session.sessionToken ?: return
-            MessageInteractor().postMessage(message, recipientId, token, onMessagePosted)
+        fun getConversationLiveData(context: Context): LiveData<List<ConversationWithParticipant>> =
+                CoreDataRepository.getLocalDataRepository(context).getConversationDataStore().getConversations()
+
+        fun queueTextMessage(context: Context, message: String, recipientId: String, onMessagePosted: (Unit) -> Unit) {
+            MessageInteractor().queueMessage(context, message, recipientId, onMessagePosted)
         }
     }
 
@@ -119,9 +137,14 @@ object Cherry {
     fun init(context: Context, partnerId: String) {
         this.partnerId = partnerId
         contextRef = WeakReference(context.applicationContext)
+        setVariables(context)
+    }
+
+    private fun setVariables(context: Context) {
         val sharedPreferences = context.getSharedPreferences(CHERRY_PREFS, Context.MODE_PRIVATE)
         Session.sessionToken = sharedPreferences.getString(KEY_SESSION_TOKEN, null)
         Session.loginToken = sharedPreferences.getString(KEY_LOGIN_TOKEN, null)
         Session.uid = sharedPreferences.getString(KEY_UID, null)
+        Session.name = sharedPreferences.getString(KEY_NAME, null)
     }
 }

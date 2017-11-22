@@ -2,17 +2,17 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "4f5a881c4d352ace4ba6c13e5315c764",
+    "identityHash": "b308d74d0133edc0f915fefc8b0af935",
     "entities": [
       {
         "tableName": "Messages",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `senderId` TEXT NOT NULL, `recipientId` TEXT NOT NULL, `state` INTEGER NOT NULL, `sentTime` INTEGER NOT NULL, `receivedTime` INTEGER NOT NULL, `unread` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`recipientId`) REFERENCES `Participants`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`senderId`) REFERENCES `Participants`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER, `senderId` TEXT NOT NULL, `recipientId` TEXT NOT NULL, `content` TEXT NOT NULL, `state` INTEGER NOT NULL, `sentTime` INTEGER NOT NULL, `receivedTime` INTEGER NOT NULL, `unread` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`recipientId`) REFERENCES `Participants`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`senderId`) REFERENCES `Participants`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "senderId",
@@ -23,6 +23,12 @@
           {
             "fieldPath": "recipientId",
             "columnName": "recipientId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "content",
+            "columnName": "content",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -152,13 +158,13 @@
       },
       {
         "tableName": "Conversations",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `participantId` TEXT NOT NULL, `lastReceivedTimestamp` INTEGER NOT NULL, `snippet` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`participantId`) REFERENCES `Participants`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER, `participantId` TEXT NOT NULL, `lastReceivedTimestamp` INTEGER NOT NULL, `snippet` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`participantId`) REFERENCES `Participants`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "participantId",
@@ -188,11 +194,11 @@
         "indices": [
           {
             "name": "participant",
-            "unique": false,
+            "unique": true,
             "columnNames": [
               "participantId"
             ],
-            "createSql": "CREATE  INDEX `participant` ON `${TABLE_NAME}` (`participantId`)"
+            "createSql": "CREATE UNIQUE INDEX `participant` ON `${TABLE_NAME}` (`participantId`)"
           }
         ],
         "foreignKeys": [
@@ -212,7 +218,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"4f5a881c4d352ace4ba6c13e5315c764\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"b308d74d0133edc0f915fefc8b0af935\")"
     ]
   }
 }

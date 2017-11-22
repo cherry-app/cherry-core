@@ -22,6 +22,12 @@ class SyncController {
 
     class ContactInfo(val contactId: Long, val name: String, val number: String)
 
+    fun insertSelfRecord(context: Context, name: String, uid: String) {
+        val self = Participant(uid, -1, name, false, "", RecipientType.SELF)
+        Log.d("Cherry", "Added self: " + self)
+        CoreDataRepository.getLocalDataRepository(context).getParticipantDataStore().insertParticipant(self)
+    }
+
     fun syncContacts(context: Context) {
         val token = Cherry.Session.sessionToken ?: throw IllegalStateException("User auth token not present")
         val uid = Cherry.Session.uid ?: throw IllegalStateException("UID not present")

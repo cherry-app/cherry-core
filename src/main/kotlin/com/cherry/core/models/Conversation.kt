@@ -11,9 +11,9 @@ import java.io.Serializable
  */
 
 @Entity(tableName = "Conversations",
-        indices = arrayOf(Index(value = "participantId", name = "participant")),
+        indices = arrayOf(Index(value = "participantId", name = "participant", unique = true)),
         foreignKeys = arrayOf(
                 ForeignKey(entity = Participant::class, parentColumns = arrayOf("id"),
                         childColumns = arrayOf("participantId"),
                         onDelete = ForeignKey.CASCADE)))
-data class Conversation(@PrimaryKey val id: Long, val participantId: String, val lastReceivedTimestamp: Long, val snippet: String): Serializable
+data class Conversation(@PrimaryKey val id: Long?, val participantId: String, val lastReceivedTimestamp: Long, val snippet: String): Serializable
