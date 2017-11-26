@@ -91,6 +91,10 @@ object Cherry {
                 onOtpResent(attemptsLeft, throwable)
             })
         }
+
+        fun updateFirebaseToken(firebaseToken: String, onTokenUpdated: (Boolean) -> Unit) {
+            sessionInteractor.updateFirebaseToken(firebaseToken, onTokenUpdated)
+        }
     }
 
     object Contacts {

@@ -12,6 +12,7 @@ object ApiRoutes {
     const val VERIFY = "/verify"
     const val RESEND_OTP = "/resend_otp"
     const val MESSAGE = "/message"
+    const val FCM_TOKEN = "/fcm_token"
     const val SYNC_CONTACTS = "/sync_contacts"
 
 }

@@ -30,4 +30,7 @@ interface CherryCoreNetwork {
 
     @POST(ApiRoutes.SYNC_CONTACTS)
     fun syncContacts(@Header("Cherry-Partner-ID") partnerId: String, @Header("Cherry-UID") uid: String , @Header("Cherry-Auth-Token") authToken: String, @Body body: JsonObject): Call<String>
+
+    @POST(ApiRoutes.FCM_TOKEN)
+    fun updateToken(@Header("Cherry-Partner-ID") partnerId: String, @Header("Cherry-UID") uid: String , @Header("Cherry-Auth-Token") authToken: String, @Body body: JsonObject): Call<String>
 }

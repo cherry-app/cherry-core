@@ -62,4 +62,17 @@ class SessionInteractor: Interactor() {
                     onOtpResent(-1, null)
                 }, { t -> onOtpResent(-1, t) }))
     }
+
+    fun updateFirebaseToken(fcmToken: String, onTokenUpdated: (Boolean) -> Unit ) {
+        disposableList.add(Observable.fromCallable { SessionController().updateFCMToken(fcmToken) }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe( { response ->
+                    if (response.isSuccessful && response.code() == 200) {
+                        onTokenUpdated(true)
+                    } else {
+                        onTokenUpdated(false)
+                    }
+                }, { onTokenUpdated(false) }))
+    }
 }

@@ -31,4 +31,12 @@ class SessionController {
         body.addProperty("login_token", loginToken)
         return CoreDataRepository.getNetworkDataRepository().resendOtp(Cherry.partnerId, body).execute()
     }
+
+    fun updateFCMToken(fcmToken: String): Response<String> {
+        val uid = Cherry.Session.uid ?: throw IllegalStateException("UID not present")
+        val authToken = Cherry.Session.sessionToken ?: throw IllegalStateException("Auth token not present")
+        val body = JsonObject()
+        body.addProperty("fcm_token", fcmToken)
+        return CoreDataRepository.getNetworkDataRepository().updateToken(Cherry.partnerId, uid, authToken, body).execute()
+    }
 }
