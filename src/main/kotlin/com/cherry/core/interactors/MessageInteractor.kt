@@ -2,7 +2,6 @@ package com.cherry.core.interactors
 
 import android.content.Context
 import com.cherry.core.controllers.MessageController
-import com.cherry.core.utilities.NullableReference
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -20,18 +19,13 @@ class MessageInteractor: Interactor() {
                 .subscribe(onMessageQueued, {}))
     }
 
-    fun publishUnsentMessages(context: Context, onMessagesSent: (Boolean) -> Unit) {
-        disposableList.add(Observable.fromCallable { NullableReference(MessageController().publishUnsentMessages(context)) }
+    fun publishUnsentMessages(context: Context, onMessagesSent: (Int, Int) -> Unit) {
+        disposableList.add(Observable.fromCallable { MessageController().publishUnsentMessages(context) }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ responseRef ->
-                    val response = responseRef.get()
-                    if (response == null) {
-                        onMessagesSent(false)
-                        return@subscribe
-                    }
-                    onMessagesSent(response.isSuccessful && response.code() == 200)
-                }, { onMessagesSent(false) }))
+                .subscribe({ pair ->
+                    onMessagesSent(pair.first, pair.second)
+                }, { onMessagesSent(0, 0) }))
 
     }
 

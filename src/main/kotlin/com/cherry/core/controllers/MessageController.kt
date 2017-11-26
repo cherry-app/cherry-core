@@ -8,6 +8,7 @@ import com.cherry.core.models.Message
 import com.cherry.core.models.MessageState
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import org.json.JSONObject
 import retrofit2.Response
 
 /**
@@ -25,19 +26,20 @@ class MessageController {
         CoreDataRepository.getLocalDataRepository(context).getConversationDataStore().insertOrReplaceConversation(conversation)
     }
 
-    fun publishUnsentMessages(context: Context): Response<String>? {
+    fun publishUnsentMessages(context: Context): Pair<Int, Int> {
         val uid = Cherry.Session.uid ?: throw IllegalStateException("UID not present")
         val authToken = Cherry.Session.sessionToken ?: throw IllegalStateException("Auth token not present")
 
         val messages = CoreDataRepository.getLocalDataRepository(context).getMessageDataStore().getUnsentMessages(uid)
 
         if (messages.isEmpty()) {
-            return null
+            return 0 to 0
         }
 
         val payload = JsonArray()
         messages.forEach { message ->
             val jsonObject = JsonObject()
+            jsonObject.addProperty("id", message.id)
             jsonObject.addProperty("recipientId", message.recipientId)
             jsonObject.addProperty("content", message.content)
             jsonObject.addProperty("sentTime", message.sentTime)
@@ -45,7 +47,22 @@ class MessageController {
         }
         val body = JsonObject()
         body.add("messages", payload)
-        return CoreDataRepository.getNetworkDataRepository().postMessage(Cherry.partnerId, uid, authToken, body).execute()
+
+        val response = CoreDataRepository.getNetworkDataRepository().postMessage(Cherry.partnerId, uid, authToken, body).execute()
+        if (!response.isSuccessful || response.code() != 200) {
+            return 0 to 0
+        }
+        val jsonResponse = JSONObject(response.body())
+        val successCount = jsonResponse.optJSONArray("succeeded")?.length() ?: 0
+        val failureCount = jsonResponse.optJSONArray("failed")?.length() ?: 0
+
+        val succeededIds = jsonResponse.optJSONArray("succeeded")
+        val succeededMessages = ArrayList<Long>()
+        (0 until succeededIds.length()).mapNotNullTo(succeededMessages) { succeededIds.getString(it).toLongOrNull() }
+
+        CoreDataRepository.getLocalDataRepository(context).getMessageDataStore().markAsSent(succeededMessages)
+
+        return successCount to (successCount + failureCount)
     }
 
     fun markAsRead(recipientId: String): Response<String> {

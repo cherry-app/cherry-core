@@ -22,4 +22,7 @@ interface MessageDataStore {
 
     @Query("SELECT * from Messages WHERE senderId = :myId AND state = 4")
     fun getUnsentMessages(myId: String): List<Message>
+
+    @Query("UPDATE Messages SET state = 1 WHERE id in (:messageIds)")
+    fun markAsSent(messageIds: List<Long>)
 }
