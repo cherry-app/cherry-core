@@ -19,4 +19,7 @@ interface MessageDataStore {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertMessage(message: Message)
+
+    @Query("SELECT * from Messages WHERE senderId = :myId AND state = 4")
+    fun getUnsentMessages(myId: String): List<Message>
 }

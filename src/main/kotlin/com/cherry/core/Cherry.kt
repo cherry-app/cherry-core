@@ -125,6 +125,8 @@ object Cherry {
 
     object Messaging {
 
+        private val messageInteractor = MessageInteractor()
+
         fun getMessageLiveDataForConversation(context: Context, participantId: String): LivePagedListProvider<Int, Message> =
                 CoreDataRepository.getLocalDataRepository(context).getMessageDataStore().getMessagesForConversationLiveData(Session.uid ?: throw IllegalStateException("UID not present"), participantId)
 
@@ -132,7 +134,15 @@ object Cherry {
                 CoreDataRepository.getLocalDataRepository(context).getConversationDataStore().getConversations()
 
         fun queueTextMessage(context: Context, message: String, recipientId: String, onMessagePosted: (Unit) -> Unit) {
-            MessageInteractor().queueMessage(context, message, recipientId, onMessagePosted)
+            messageInteractor.queueMessage(context, message, recipientId, onMessagePosted)
+        }
+
+        fun tryPublishingMessages(context: Context, onMessagePublished: (Boolean) -> Unit = {}) {
+            messageInteractor.publishUnsentMessages(context, onMessagePublished)
+        }
+
+        fun markAsRead(recipientId: String, onMarkedAsRead: () -> Unit = {}) {
+            messageInteractor.markAsRead(recipientId, onMarkedAsRead)
         }
     }
 

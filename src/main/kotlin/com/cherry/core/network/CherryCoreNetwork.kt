@@ -33,4 +33,8 @@ interface CherryCoreNetwork {
 
     @POST(ApiRoutes.FCM_TOKEN)
     fun updateToken(@Header("Cherry-Partner-ID") partnerId: String, @Header("Cherry-UID") uid: String , @Header("Cherry-Auth-Token") authToken: String, @Body body: JsonObject): Call<String>
+
+    @POST(ApiRoutes.FCM_TOKEN)
+    fun markAsRead(@Header("Cherry-Partner-ID") partnerId: String, @Header("Cherry-UID") uid: String , @Header("Cherry-Auth-Token") authToken: String, @Body body: JsonObject): Call<String>
+
 }
