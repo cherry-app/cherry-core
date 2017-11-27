@@ -25,4 +25,11 @@ interface ParticipantDataStore {
 
     @Query("SELECT * FROM Participants")
     fun getParticipantsLiveData(): LiveData<List<Participant>>
+
+    @Query("SELECT * FROM Participants where id = :participantId")
+    fun getParticipantById(participantId: String): Participant?
+
+    @Query("SELECT * FROM Participants where id in (:participantIds)")
+    fun getParticipantById(participantIds: List<String>): List<Participant>
+
 }

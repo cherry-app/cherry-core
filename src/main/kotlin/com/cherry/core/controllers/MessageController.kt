@@ -6,6 +6,7 @@ import com.cherry.core.data.repositories.CoreDataRepository
 import com.cherry.core.models.Conversation
 import com.cherry.core.models.Message
 import com.cherry.core.models.MessageState
+import com.cherry.core.models.ParticipantWithMessages
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import org.json.JSONObject
@@ -24,6 +25,20 @@ class MessageController {
         CoreDataRepository.getLocalDataRepository(context).getMessageDataStore().insertMessage(message)
         val conversation = Conversation(null, recipientId, time, text)
         CoreDataRepository.getLocalDataRepository(context).getConversationDataStore().insertOrReplaceConversation(conversation)
+    }
+
+    fun findUnreadMessages(context: Context) : List<ParticipantWithMessages> {
+        val messages = CoreDataRepository.getLocalDataRepository(context).getMessageDataStore().getUnreadMessages()
+        val senderIds = CoreDataRepository.getLocalDataRepository(context).getMessageDataStore().getUnreadSenderIds()
+        val participants = CoreDataRepository.getLocalDataRepository(context).getParticipantDataStore().getParticipantById(senderIds)
+        val participantsWithMessages = ArrayList<ParticipantWithMessages>()
+        participants.forEach { participant ->
+            val participantWithMessages = ParticipantWithMessages()
+            participantWithMessages.participant = participant
+            participantWithMessages.messages = messages.filter { message -> message.senderId == participant.id }
+            participantsWithMessages.add(participantWithMessages)
+        }
+        return participantsWithMessages
     }
 
     fun publishUnsentMessages(context: Context): Pair<Int, Int> {
@@ -76,14 +91,18 @@ class MessageController {
         return CoreDataRepository.getNetworkDataRepository().markAsRead(Cherry.partnerId, uid, authToken, body).execute()
     }
 
-    fun newIncomingMessage(context: Context, data: Map<String, String>) {
+    fun newIncomingMessage(context: Context, data: Map<String, String>): Message? {
         val uid = Cherry.Session.uid ?: throw IllegalStateException("UID not present")
 
-        val senderId = data["senderId"] ?: return
-        val content = data["content"] ?: return
-        val timestamp = data["sentTime"]?.toLongOrNull() ?: return
+        val senderId = data["senderId"] ?: return null
+        val content = data["content"] ?: return null
+        val timestamp = data["sentTime"]?.toLongOrNull() ?: return null
 
         val message = Message(null, senderId, uid, content, MessageState.RECEIVED, timestamp, System.currentTimeMillis(), true)
         CoreDataRepository.getLocalDataRepository(context).getMessageDataStore().insertMessage(message)
+        return message
     }
+
+    fun markAsReadLocally(context: Context, recipientId: String) =
+        CoreDataRepository.getLocalDataRepository(context).getMessageDataStore().markAsRead(recipientId)
 }

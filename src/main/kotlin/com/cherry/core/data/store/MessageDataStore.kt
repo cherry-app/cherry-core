@@ -26,4 +26,13 @@ interface MessageDataStore {
 
     @Query("UPDATE Messages SET state = 1 WHERE id in (:messageIds)")
     fun markAsSent(messageIds: List<Long>)
+
+    @Query("SELECT * from Messages WHERE unread = 1 AND state = 5")
+    fun getUnreadMessages(): List<Message>
+
+    @Query("SELECT DISTINCT senderId from Messages WHERE unread = 1 AND state = 5")
+    fun getUnreadSenderIds(): List<String>
+
+    @Query("UPDATE Messages SET unread = 0 WHERE senderId = :participantId")
+    fun markAsRead(participantId: String)
 }

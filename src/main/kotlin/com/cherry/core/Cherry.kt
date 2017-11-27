@@ -3,6 +3,7 @@ package com.cherry.core
 import android.arch.lifecycle.LiveData
 import android.arch.paging.LivePagedListProvider
 import android.content.Context
+import android.content.Intent
 import com.cherry.core.data.repositories.CoreDataRepository
 import com.cherry.core.interactors.MessageInteractor
 import com.cherry.core.interactors.ParticipantsInteractor
@@ -11,6 +12,7 @@ import com.cherry.core.interfaces.SessionClosed
 import com.cherry.core.models.ConversationWithParticipant
 import com.cherry.core.models.Message
 import com.cherry.core.models.Participant
+import com.cherry.core.models.ParticipantWithMessages
 import java.lang.ref.WeakReference
 
 /**
@@ -25,6 +27,11 @@ object Cherry {
     private const val KEY_LOGIN_TOKEN = "loginToken"
     private const val KEY_NAME = "name"
     private const val KEY_UID = "phoneNumber"
+
+    const val ACTION_NEW_INCOMING_MESSAGE = "com.cherry.chat.ACTION_NEW_INCOMING_MESSAGE"
+    const val PERMISSION_RECEIVE_MESSAGES = "com.cherry.chat.permission.RECEIVE_MESSAGES"
+
+    const val KEY_MESSAGE = "message"
 
     private var contextRef: WeakReference<Context>? = null
 
@@ -129,6 +136,9 @@ object Cherry {
             })
         }
 
+        fun findParticipantById(context: Context, participantId: String, onParticipantFound: (Participant?) -> Unit) =
+            participantsInteractor.findParticipantById(context, participantId, onParticipantFound)
+
         fun getParticipantsLiveData(context: Context): LiveData<List<Participant>> =
                 CoreDataRepository.getLocalDataRepository(context).getParticipantDataStore().getParticipantsLiveData()
     }
@@ -151,12 +161,24 @@ object Cherry {
             messageInteractor.publishUnsentMessages(context, onMessagePublished)
         }
 
-        fun markAsRead(recipientId: String, onMarkedAsRead: () -> Unit = {}) {
+        fun markAsRead(context: Context, recipientId: String, onMarkedAsRead: () -> Unit = {}) {
             messageInteractor.markAsRead(recipientId, onMarkedAsRead)
+            messageInteractor.markAsReadLocally(context, recipientId, {})
         }
 
-        fun processData(context: Context, data: Map<String, String>, onNewMessageAdded: () -> Unit = {}) {
-            messageInteractor.newIncomingMessage(context, data, onNewMessageAdded)
+        fun getUnreadMessages(context: Context, onUnreadMessagesFetched: (List<ParticipantWithMessages>?) -> Unit) {
+            messageInteractor.findUnreadMessages(context, onUnreadMessagesFetched)
+        }
+
+        fun processData(context: Context, data: Map<String, String>, onNewMessageAdded: (Message?) -> Unit = {}) {
+            messageInteractor.newIncomingMessage(context, data, { message ->
+                if (message != null) {
+                    val orderedBroadcast = Intent(ACTION_NEW_INCOMING_MESSAGE)
+                    orderedBroadcast.putExtra(KEY_MESSAGE, message)
+                    context.sendOrderedBroadcast(orderedBroadcast, PERMISSION_RECEIVE_MESSAGES)
+                }
+                onNewMessageAdded(message)
+            })
         }
     }
 
