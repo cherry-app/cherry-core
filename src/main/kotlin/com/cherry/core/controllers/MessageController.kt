@@ -100,6 +100,8 @@ class MessageController {
 
         val message = Message(null, senderId, uid, content, MessageState.RECEIVED, timestamp, System.currentTimeMillis(), true)
         CoreDataRepository.getLocalDataRepository(context).getMessageDataStore().insertMessage(message)
+        val conversation = Conversation(null, message.senderId, message.receivedTime, message.content)
+        CoreDataRepository.getLocalDataRepository(context).getConversationDataStore().insertOrReplaceConversation(conversation)
         return message
     }
 
