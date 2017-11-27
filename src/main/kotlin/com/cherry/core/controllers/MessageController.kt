@@ -20,7 +20,7 @@ class MessageController {
     fun queueMessage(context: Context, text: String, recipientId: String) {
         val time = System.currentTimeMillis()
         val uid = Cherry.Session.uid ?: throw IllegalStateException("UID not present")
-        val message = Message(null, uid, recipientId, text, MessageState.PENDING, time, -1, false)
+        val message = Message(null, uid, recipientId, text, MessageState.PENDING, time, time, false) // time is added to make sure self-sent message comes below in descending order
         CoreDataRepository.getLocalDataRepository(context).getMessageDataStore().insertMessage(message)
         val conversation = Conversation(null, recipientId, time, text)
         CoreDataRepository.getLocalDataRepository(context).getConversationDataStore().insertOrReplaceConversation(conversation)
@@ -50,6 +50,7 @@ class MessageController {
 
         val response = CoreDataRepository.getNetworkDataRepository().postMessage(Cherry.partnerId, uid, authToken, body).execute()
         if (!response.isSuccessful || response.code() != 200) {
+            val error = response.errorBody()?.string()
             return 0 to 0
         }
         val jsonResponse = JSONObject(response.body())
@@ -73,5 +74,16 @@ class MessageController {
         body.addProperty("recipientId", recipientId)
         body.addProperty("timestamp", System.currentTimeMillis())
         return CoreDataRepository.getNetworkDataRepository().markAsRead(Cherry.partnerId, uid, authToken, body).execute()
+    }
+
+    fun newIncomingMessage(context: Context, data: Map<String, String>) {
+        val uid = Cherry.Session.uid ?: throw IllegalStateException("UID not present")
+
+        val senderId = data["senderId"] ?: return
+        val content = data["content"] ?: return
+        val timestamp = data["sentTime"]?.toLongOrNull() ?: return
+
+        val message = Message(null, senderId, uid, content, MessageState.RECEIVED, timestamp, System.currentTimeMillis(), true)
+        CoreDataRepository.getLocalDataRepository(context).getMessageDataStore().insertMessage(message)
     }
 }

@@ -35,4 +35,11 @@ class MessageInteractor: Interactor() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ _ -> onMarkedAsRead() }, {}))
     }
+
+    fun newIncomingMessage(context: Context, data: Map<String, String>, onMessageAdded: () -> Unit) {
+        disposableList.add(Observable.fromCallable { MessageController().newIncomingMessage(context, data) }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ _ -> onMessageAdded() }, {}))
+    }
 }

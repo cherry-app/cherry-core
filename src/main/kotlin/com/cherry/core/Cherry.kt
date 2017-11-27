@@ -137,12 +137,16 @@ object Cherry {
             messageInteractor.queueMessage(context, message, recipientId, onMessagePosted)
         }
 
-        fun tryPublishingMessages(context: Context, onMessagePublished: (Boolean) -> Unit = {}) {
+        fun tryPublishingMessages(context: Context, onMessagePublished: (Int, Int) -> Unit = {_, _ -> }) {
             messageInteractor.publishUnsentMessages(context, onMessagePublished)
         }
 
         fun markAsRead(recipientId: String, onMarkedAsRead: () -> Unit = {}) {
             messageInteractor.markAsRead(recipientId, onMarkedAsRead)
+        }
+
+        fun processData(context: Context, data: Map<String, String>, onNewMessageAdded: () -> Unit = {}) {
+            messageInteractor.newIncomingMessage(context, data, onNewMessageAdded)
         }
     }
 
