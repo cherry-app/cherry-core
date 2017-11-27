@@ -7,6 +7,7 @@ import com.cherry.core.data.repositories.CoreDataRepository
 import com.cherry.core.interactors.MessageInteractor
 import com.cherry.core.interactors.ParticipantsInteractor
 import com.cherry.core.interactors.SessionInteractor
+import com.cherry.core.interfaces.SessionClosed
 import com.cherry.core.models.ConversationWithParticipant
 import com.cherry.core.models.Message
 import com.cherry.core.models.Participant
@@ -30,6 +31,7 @@ object Cherry {
     object Session {
 
         private val sessionInteractor = SessionInteractor()
+        private var sessionClosed: SessionClosed? = null
         var loginToken: String? = null
         var sessionToken: String? = null
         var uid: String? = null
@@ -37,6 +39,14 @@ object Cherry {
 
         val isLoggedIn: Boolean
             get() = sessionToken != null
+
+        fun registerSessionClosedListener(sessionClosed: SessionClosed) {
+            this.sessionClosed = sessionClosed
+        }
+
+        fun unRegisterSessionClosedListener() {
+            this.sessionClosed = null
+        }
 
         fun requestOtp(phoneNumber: String, name: String, onOtpRequested: (success: Boolean, exception: Throwable?) -> Unit) {
             sessionInteractor.signUp(phoneNumber, name, { loginToken, throwable ->
