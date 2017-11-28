@@ -56,7 +56,7 @@ class SyncController {
     private fun List<ContactInfo>.getNameForNumber(phoneNumber: String): ContactInfo? =
             this.firstOrNull { it.number == phoneNumber }
 
-    private fun getAllPhoneNumbers(context: Context): HashMap<String, ContactInfo> {
+    fun getAllPhoneNumbers(context: Context): HashMap<String, ContactInfo> {
         val allPhoneNumbers = HashMap<String, ContactInfo>()
         val cr = context.contentResolver
         cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null).useAs {
@@ -83,7 +83,7 @@ class SyncController {
 
     private fun getCountryCode(): String = "+91"
 
-    private fun sanitize(number: String): String {
+    fun sanitize(number: String): String {
         val startsWithPlus = number.startsWith("+")
         var filterNumber = number.replace(Regex("\\D+"),"")
         if (filterNumber.length == 10) {

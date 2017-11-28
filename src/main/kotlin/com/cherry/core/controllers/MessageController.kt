@@ -3,10 +3,7 @@ package com.cherry.core.controllers
 import android.content.Context
 import com.cherry.core.Cherry
 import com.cherry.core.data.repositories.CoreDataRepository
-import com.cherry.core.models.Conversation
-import com.cherry.core.models.Message
-import com.cherry.core.models.MessageState
-import com.cherry.core.models.ParticipantWithMessages
+import com.cherry.core.models.*
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import org.json.JSONObject
@@ -23,7 +20,7 @@ class MessageController {
         val uid = Cherry.Session.uid ?: throw IllegalStateException("UID not present")
         val message = Message(null, uid, recipientId, text, MessageState.PENDING, time, time, false) // time is added to make sure self-sent message comes below in descending order
         CoreDataRepository.getLocalDataRepository(context).getMessageDataStore().insertMessage(message)
-        val conversation = Conversation(null, recipientId, uid, time, text)
+        val conversation = Conversation(null, recipientId, time, text)
         CoreDataRepository.getLocalDataRepository(context).getConversationDataStore().insertOrReplaceConversation(conversation)
     }
 
@@ -100,7 +97,15 @@ class MessageController {
 
         val message = Message(null, senderId, uid, content, MessageState.RECEIVED, timestamp, System.currentTimeMillis(), true)
         CoreDataRepository.getLocalDataRepository(context).getMessageDataStore().insertMessage(message)
-        val conversation = Conversation(null, message.senderId, uid, message.receivedTime, message.content)
+        val sender = CoreDataRepository.getLocalDataRepository(context).getParticipantDataStore().getParticipantById(message.senderId)
+        if (sender == null) {
+            val syncController = SyncController()
+            val allPhoneNumbers = syncController.getAllPhoneNumbers(context)
+            val contactInfo = allPhoneNumbers[senderId]
+            val unnamedParticipant = Participant(senderId, -1, contactInfo?.name ?: senderId, false, "", RecipientType.INDIVIDUAL)
+            CoreDataRepository.getLocalDataRepository(context).getParticipantDataStore().insertParticipant(unnamedParticipant)
+        }
+        val conversation = Conversation(null, message.senderId, message.receivedTime, message.content)
         CoreDataRepository.getLocalDataRepository(context).getConversationDataStore().insertOrReplaceConversation(conversation)
         return message
     }

@@ -20,7 +20,8 @@ object CoreDataRepository {
     @Volatile private var NETWORK_INSTANCE: CherryCoreNetwork? = null
 
     fun getLocalDataRepository(context: Context): CherryCoreDatabase {
-        return DATABASE_INSTANCE ?: Room.databaseBuilder(context, CherryCoreDatabase::class.java, "cherry-core.db").build().also { DATABASE_INSTANCE = it }
+        return DATABASE_INSTANCE ?: Room.databaseBuilder(context, CherryCoreDatabase::class.java, "cherry-core.db")
+                .build().also { DATABASE_INSTANCE = it }
     }
 
     fun getNetworkDataRepository(): CherryCoreNetwork {
