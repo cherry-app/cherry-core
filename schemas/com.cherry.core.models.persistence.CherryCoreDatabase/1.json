@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "b308d74d0133edc0f915fefc8b0af935",
+    "identityHash": "2d8ccf58a0bf4f4f68eec822fa70f564",
     "entities": [
       {
         "tableName": "Messages",
@@ -158,7 +158,7 @@
       },
       {
         "tableName": "Conversations",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER, `participantId` TEXT NOT NULL, `lastReceivedTimestamp` INTEGER NOT NULL, `snippet` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`participantId`) REFERENCES `Participants`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER, `participantId` TEXT NOT NULL, `myId` TEXT NOT NULL, `lastReceivedTimestamp` INTEGER NOT NULL, `snippet` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`participantId`) REFERENCES `Participants`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -169,6 +169,12 @@
           {
             "fieldPath": "participantId",
             "columnName": "participantId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "myId",
+            "columnName": "myId",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -218,7 +224,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"b308d74d0133edc0f915fefc8b0af935\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"2d8ccf58a0bf4f4f68eec822fa70f564\")"
     ]
   }
 }

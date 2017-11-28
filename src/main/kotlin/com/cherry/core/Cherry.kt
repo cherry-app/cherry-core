@@ -151,7 +151,7 @@ object Cherry {
                 CoreDataRepository.getLocalDataRepository(context).getMessageDataStore().getMessagesForConversationLiveData(Session.uid ?: throw IllegalStateException("UID not present"), participantId)
 
         fun getConversationLiveData(context: Context): LiveData<List<ConversationWithParticipant>> =
-                CoreDataRepository.getLocalDataRepository(context).getConversationDataStore().getConversations()
+                CoreDataRepository.getLocalDataRepository(context).getConversationDataStore().getConversations(Session.uid)
 
         fun queueTextMessage(context: Context, message: String, recipientId: String, onMessagePosted: (Unit) -> Unit) {
             messageInteractor.queueMessage(context, message, recipientId, onMessagePosted)

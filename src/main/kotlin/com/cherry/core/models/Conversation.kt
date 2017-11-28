@@ -16,4 +16,4 @@ import java.io.Serializable
                 ForeignKey(entity = Participant::class, parentColumns = arrayOf("id"),
                         childColumns = arrayOf("participantId"),
                         onDelete = ForeignKey.CASCADE)))
-data class Conversation(@PrimaryKey val id: Long?, val participantId: String, val lastReceivedTimestamp: Long, val snippet: String): Serializable
+data class Conversation(@PrimaryKey val id: Long?, val participantId: String, val myId: String, val lastReceivedTimestamp: Long, val snippet: String): Serializable

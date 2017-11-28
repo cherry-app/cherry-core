@@ -23,7 +23,7 @@ class MessageController {
         val uid = Cherry.Session.uid ?: throw IllegalStateException("UID not present")
         val message = Message(null, uid, recipientId, text, MessageState.PENDING, time, time, false) // time is added to make sure self-sent message comes below in descending order
         CoreDataRepository.getLocalDataRepository(context).getMessageDataStore().insertMessage(message)
-        val conversation = Conversation(null, recipientId, time, text)
+        val conversation = Conversation(null, recipientId, uid, time, text)
         CoreDataRepository.getLocalDataRepository(context).getConversationDataStore().insertOrReplaceConversation(conversation)
     }
 
@@ -100,7 +100,7 @@ class MessageController {
 
         val message = Message(null, senderId, uid, content, MessageState.RECEIVED, timestamp, System.currentTimeMillis(), true)
         CoreDataRepository.getLocalDataRepository(context).getMessageDataStore().insertMessage(message)
-        val conversation = Conversation(null, message.senderId, message.receivedTime, message.content)
+        val conversation = Conversation(null, message.senderId, uid, message.receivedTime, message.content)
         CoreDataRepository.getLocalDataRepository(context).getConversationDataStore().insertOrReplaceConversation(conversation)
         return message
     }

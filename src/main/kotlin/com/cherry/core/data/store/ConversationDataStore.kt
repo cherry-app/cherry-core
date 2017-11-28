@@ -15,8 +15,8 @@ import com.cherry.core.models.ConversationWithParticipant
 @Dao
 interface ConversationDataStore {
 
-    @Query("SELECT * From Conversations ORDER BY lastReceivedTimestamp DESC")
-    fun getConversations(): LiveData<List<ConversationWithParticipant>>
+    @Query("SELECT * From Conversations WHERE myId = :myId ORDER BY lastReceivedTimestamp DESC")
+    fun getConversations(myId: String?): LiveData<List<ConversationWithParticipant>>
 
     @Query("SELECT COUNT(1) From Conversations, Messages WHERE recipientId = participantId AND unread = 1")
     fun getConversationUnreadCount(): Int
